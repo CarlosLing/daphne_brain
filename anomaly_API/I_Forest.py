@@ -68,6 +68,7 @@ def i_tree(x, e, l):
         return InNode(i_tree(xl, e+1, l), i_tree(xr, e+1, l), q, p)
 
 
+# Average path length in unsuccessful search in Binary Search Tree
 def c(size):
     if size <= 1:
         return 0
@@ -120,9 +121,9 @@ class iForest(JsonWebsocketConsumer):
 
         # Calculates the sampling size
         n = data.shape[0]
-        m = int(n * sp)
+        m = int(n * sp)  # TODO this might be better if inputted directly
 
-        forest = i_forest(data, t, m)
+        forest = i_forest(data, t, m)  # initialize the forest
 
         meanPathLength = []
 
@@ -133,10 +134,8 @@ class iForest(JsonWebsocketConsumer):
 
             meanPathLength.append(sumPL / t)
 
-        minPL = np.min(meanPathLength)
-        maxPL = np.max(meanPathLength)
         out = pd.DataFrame()
-        out["anomalyScore"] = 1 + ((meanPathLength - minPL) / (minPL - maxPL))
+        out["anomalyScore"] = np.power(2, -np.asanyarray(meanPathLength/c(m)))
         out['timestamp'] = data.index
 
         self.send_json(out.to_json(date_format='iso', orient='records'))
